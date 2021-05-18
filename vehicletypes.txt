@@ -1,0 +1,126 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Cascade0.Models;
+
+namespace Cascade0.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class VehicletypesController : ControllerBase
+    {
+        private readonly DDSPRODDBContext _context;
+
+        public VehicletypesController()
+        {
+            _context = new DDSPRODDBContext();
+        }
+
+        // GET: api/Vehicletypes
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Vehicletype>>> GetVehicletype()
+        {
+            return await _context.Vehicletype.ToListAsync();
+        }
+
+        // GET: api/Vehicletypes/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Vehicletype>> GetVehicletype(int id)
+        {
+            var vehicletype = await _context.Vehicletype.FindAsync(id);
+
+            if (vehicletype == null)
+            {
+                return NotFound();
+            }
+
+            return vehicletype;
+        }
+
+        // PUT: api/Vehicletypes/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for
+        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Vehicletype>> PutVehicletype(int id, [FromBody]Vehicletype vehicletype)
+        {
+
+            if (id != vehicletype.Vehicletypeid)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(vehicletype).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!VehicletypeExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return vehicletype;
+
+        }
+
+        // POST: api/Vehicletypes
+        // To protect from overposting attacks, enable the specific properties you want to bind to, for
+        // more details, see https://go.microsoft.com/fwlink/?linkid=2123754.
+        [HttpPost]
+        public async Task<ActionResult<Vehicletype>> PostVehicletype(Vehicletype vehicletype)
+        {
+            _context.Vehicletype.Add(vehicletype);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                if (VehicletypeExists(vehicletype.Vehicletypeid))
+                {
+                    return Conflict();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return CreatedAtAction("GetVehicletype", new { id = vehicletype.Vehicletypeid }, vehicletype);
+        }
+
+        // DELETE: api/Vehicletypes/5
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Vehicletype>> DeleteVehicletype(int id)
+        {
+            var vehicletype = await _context.Vehicletype.FindAsync(id);
+            if (vehicletype == null)
+            {
+                return NotFound();
+            }
+
+            _context.Vehicletype.Remove(vehicletype);
+            await _context.SaveChangesAsync();
+
+            return vehicletype;
+        }
+
+        private bool VehicletypeExists(int id)
+        {
+            return _context.Vehicletype.Any(e => e.Vehicletypeid == id);
+        }
+    }
+}
